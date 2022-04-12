@@ -1,0 +1,10 @@
+
+
+```{r, message = FALSE}
+library(tidyverse)
+```
+
+```{r}
+spotify <- read_csv("spotify_dataset.csv")
+```
+

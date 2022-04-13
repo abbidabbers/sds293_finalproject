@@ -1,10 +1,38 @@
-
+---
+title: "Final Project"
+author: "Abbie Benfield, Annah Mutaya"
+date: "12/16/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
 
 ```{r, message = FALSE}
 library(tidyverse)
+library(janitor)
+library(performance)
 ```
 
 ```{r}
-spotify <- read_csv("spotify_dataset.csv")
+spotify <- read_csv("spotify_dataset.csv") %>% 
+  clean_names()
+```
+
+
+```{r}
+ggplot(spotify, aes(x = highest_charting_position)) +
+  geom_freqpoly()
+```
+
+
+```{r}
+spotify <- spotify %>% 
+  mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE)) %>% 
+  select(-index, -song_name, -artist, song_id, -weeks_charted)
+```
+
+```{r}
+linear <- lm(top_20 ~ ., data = spotify)
+summary(linear)
 ```
 

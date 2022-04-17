@@ -1,0 +1,33 @@
+---
+title: "Outline"
+author: "Abbie Benfield, Annah Mutaya"
+date: '2022-04-17'
+output: html_document
+---
+
+Dataset: [Spotify Top 200 Charts (2020-2021)](https://www.kaggle.com/datasets/sashankpillai/spotify-top-200-charts-20202021)
+Problem: What makes a top 20 song?
+
+1. Exploratory Data Analysis - started
+  
+2. Making Models 
+  - Multiple Linear Regression - started
+  - Multiple Logistic Regression
+  - KNN
+  - Best Subset
+  - Ridge
+  - Lasso
+  - PCR
+  - PLS
+  - Smoothing Splines
+  - GAM
+  - Classification Trees
+  - SVM
+  
+3. Select final model and write-up findings
+
+4. Write-up complete report
+
+Questions: 
+1. Are we trying the right types of models/are we trying too many?
+2. How much much EDA should we perform?

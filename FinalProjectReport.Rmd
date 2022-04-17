@@ -7,32 +7,48 @@ output:
   html_document: default
 ---
 
+Annah
+- Multiple Linear Regression - L2
+- Multiple Logistic Regression - L4
+- KNN - L3
+- Best Subset - L7
+- Ridge - L9
+- Lasso - L9
+
+Abbie
+- PCR - L10
+- PLS - L11
+- Smoothing Splines - L13
+- GAM - L13
+- Classification Trees - L14
+- SVM - L15
+
 ```{r, message = FALSE}
 library(tidyverse)
 library(janitor)
 library(performance)
 ```
 
-```{r}
-spotify <- read_csv("spotify_dataset.csv") %>% 
-  clean_names()
+```{r, message = FALSE}
+spotify <- read_csv("spotify_dataset.csv") %>%
+  clean_names() %>%
+  na.omit() # 11 NAs omitted
 ```
 
 
 ```{r}
 ggplot(spotify, aes(x = highest_charting_position)) +
-  geom_freqpoly()
+  geom_freqpoly(bins = 30)
 ```
 
 
 ```{r}
-spotify <- spotify %>% 
-  mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE)) %>% 
-  select(-index, -song_name, -artist, song_id, -weeks_charted)
+spotify <- spotify %>%
+  mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE)) %>%
+  select(-index, -song_name, -artist, -song_id, -weeks_charted)
 ```
 
 ```{r}
-linear <- lm(top_20 ~ ., data = spotify)
+linear <- lm(top_20 ~.-highest_charting_position -week_of_highest_charting -release_date -genre -chord, data = spotify)
 summary(linear)
 ```
-

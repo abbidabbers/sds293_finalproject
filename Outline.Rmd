@@ -11,16 +11,16 @@ Problem: What makes a top 20 song?
 1. Exploratory Data Analysis - started
   
 2. Making Models 
-  - Multiple Linear Regression - started
-  - Multiple Logistic Regression
-  - KNN
-  - Best Subset
-  - Ridge
-  - Lasso
-  - PCR
-  - PLS
-  - Smoothing Splines
-  - GAM
+  <!-- - Multiple Linear Regression - started  -->
+  - Multiple Logistic Regression - started
+  - KNN - started
+  - Best Subset - started
+  <!-- - Ridge -->
+  <!-- - Lasso -->
+  <!-- - PCR - started -->
+  <!-- - PLS - started -->
+  <!-- - Smoothing Splines -->
+  <!-- - GAM -->
   - Classification Trees
   - SVM
   
@@ -32,3 +32,12 @@ Questions:
 1. Are we trying the right types of models/are we trying too many?
 2. How much much EDA should we perform?
 3. We haven't talked about variable selection in all methods - how should we address it in methods such as PCR?
+
+
+Notes from Checkpoint meeting:
+- only logisitic, knn, classification trees, svm for classification
+- PCA for EDA (probably enough unless there's something special) -> consider doing clustering instead
+- Best Subset Selection for choosing predictors (not EDA)
+- no exact min/max on page count
+- don't have to do all 4 model types (logistic and svm may have significant similarities)
+- by friday of finals at 2pm (earlier the better)

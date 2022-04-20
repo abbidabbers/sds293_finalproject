@@ -91,6 +91,7 @@ About 90% of songs correctly categorized. More accurate for songs that didn't ma
 
 ```{r}
 library(ISLR)
+library(class)
 
 train_spotify = spotify %>%
   dplyr::select(number_of_times_charted, streams, artist_followers, tempo)

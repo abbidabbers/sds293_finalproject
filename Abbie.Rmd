@@ -25,6 +25,7 @@ spotify <- read_csv("spotify_dataset.csv") %>%
   na.omit() %>% # 11 NAs omitted
   mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE))
 
+# Smaller subset than main doc
 sp <- spotify %>%
   select(-index, -song_name, -artist, -song_id, -weeks_charted, -highest_charting_position, -week_of_highest_charting, -genre, -release_date, -chord)
 

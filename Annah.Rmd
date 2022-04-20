@@ -1,0 +1,136 @@
+---
+title: "Annah"
+author: "Annah N Mutaya"
+date: '2022-04-19'
+output: html_document
+---
+
+```{r, message = FALSE}
+library(tidyverse)
+library(janitor)
+library(performance)
+```
+
+```{r, message = FALSE}
+spotify <- read_csv("spotify_dataset.csv") %>%
+  clean_names() %>%
+  na.omit() # 11 NAs omitted
+```
+
+
+```{r}
+ggplot(spotify, aes(x = highest_charting_position)) +
+  geom_freqpoly(bins = 30)
+```
+
+
+```{r}
+spotify <- spotify %>%
+  mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE)) %>%
+  select(-index, -song_name, -artist, -song_id, -weeks_charted)
+```
+
+## Multiple Linear Regression
+
+```{r}
+linear <- lm(top_20 ~.-highest_charting_position -week_of_highest_charting -release_date -genre -chord, data = spotify)
+summary(linear)
+```
+
+
+Significant predictors are number of times charted, streams, artist followers and tempo. 
+
+```{r}
+reduced_linear <- lm(top_20 ~ number_of_times_charted + streams + artist_followers + tempo, data = spotify)
+summary(reduced_linear)
+```
+
+Maybe add interaction here? 
+
+## Multiple Logistic Regression
+
+```{r}
+set.seed(1)
+
+spotify = spotify %>%
+  na.omit()
+
+train = spotify %>%
+  sample_frac(0.7)
+
+test = spotify %>%
+  setdiff(train)
+
+
+# Here decided to use only the significant predictors from lm()
+glm_fit = glm(top_20 ~number_of_times_charted + streams + artist_followers + tempo, 
+              data = train, 
+              family = binomial)
+
+glm_probs = data.frame(probs = predict(glm_fit, 
+                                       newdata = test, 
+                                       type="response"))
+
+glm_pred = glm_probs %>%
+  mutate(pred = ifelse(probs>.5, "Yes", "No"))
+
+glm_pred = cbind(test, glm_pred)
+
+glm_pred %>% 
+  count(pred, top_20) %>%
+  spread(top_20, n, fill = 0)
+
+glm_pred %>%
+  summarize(score = mean(pred == top_20),
+            recip = mean(pred != top_20))
+```
+
+About 90% of songs correctly categorized. More accurate for songs that didn't make it inot the top 20 than for songs that did. NOt sure what a mean of 0 would mean for the score here. 
+
+## KNN
+
+```{r}
+library(ISLR)
+
+train_spotify = spotify %>%
+  dplyr::select(number_of_times_charted, streams, artist_followers, tempo)
+
+test_spotify = spotify %>%
+  dplyr::select(number_of_times_charted, streams, artist_followers, tempo)
+
+# vectorize the outcome variable
+train_top_20 = spotify %>%
+  dplyr::select(top_20) %>%
+  .$top_20
+
+# try for k values 1-10
+for (i in 1:10) {
+  set.seed(1)
+  knn_pred = knn(train_spotify, 
+                 test_spotify, 
+                 train_top_20, 
+                 k = i)
+  
+  test_top_20 = spotify %>%
+    dplyr::select(top_20) %>%
+    .$top_20
+  
+  print(table(knn_pred, test_top_20))
+  print(mean(knn_pred == test_top_20))
+}
+```
+
+Wow, looks like a knn = 1 is perfect for this dataset; accurately classifies 100% of the dataset. Interesting or fishy??
+
+## Best subset
+
+```{r}
+library(leaps)
+regfit_full = regsubsets(top_20~., data = spotify, nvmax = 10, really.big = TRUE)  ## This did not finish running even after leaving it overnight. Maybe best subsets doesn't work here. 
+summary(regfit_full)
+```
+
+
+
+
+

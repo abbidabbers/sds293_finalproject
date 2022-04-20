@@ -31,3 +31,4 @@ Problem: What makes a top 20 song?
 Questions: 
 1. Are we trying the right types of models/are we trying too many?
 2. How much much EDA should we perform?
+3. We haven't talked about variable selection in all methods - how should we address it in methods such as PCR?

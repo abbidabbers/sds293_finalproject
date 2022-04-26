@@ -8,18 +8,18 @@ output:
 ---
 
 Annah
-- Multiple Linear Regression - L2
+<!-- - Multiple Linear Regression - L2 -->
 - Multiple Logistic Regression - L4
 - KNN - L3
 - Best Subset - L7
-- Ridge - L9
-- Lasso - L9
+<!-- - Ridge - L9 -->
+<!-- - Lasso - L9 -->
 
 Abbie
-- PCR - L10
-- PLS - L11
-- Smoothing Splines - L13
-- GAM - L13
+<!-- - PCR - L10 -->
+<!-- - PLS - L11 -->
+<!-- - Smoothing Splines - L13 -->
+<!-- - GAM - L13 -->
 - Classification Trees - L14
 - SVM - L15
 
@@ -52,3 +52,7 @@ spotify <- spotify %>%
 linear <- lm(top_20 ~.-highest_charting_position -week_of_highest_charting -release_date -genre -chord, data = spotify)
 summary(linear)
 ```
+
+
+
+Note about variable selection: While Chord and Genre would be interesting variables to take into account, their composition is too difficult to consider them in our models, given the scope of the project.

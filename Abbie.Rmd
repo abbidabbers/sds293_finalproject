@@ -5,17 +5,13 @@ output: html_document
 ---
 
 Abbie
-- ~~PCR - L10~~
-- ~~PLS - L11~~
-- Smoothing Splines - L13
-- GAM - L13
 - Classification Trees - L14
 - SVM - L15
 
 ```{r, message = FALSE}
 library(tidyverse)
 library(janitor)
-library(performance)
+library(gbm)
 ```
 
 
@@ -25,10 +21,18 @@ spotify <- read_csv("spotify_dataset.csv") %>%
   na.omit() %>% # 11 NAs omitted
   mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE))
 
-# Smaller subset than main doc
+# Smaller subset than main doc - do we want to include streams and popularity?
 sp <- spotify %>%
   select(-index, -song_name, -artist, -song_id, -weeks_charted, -highest_charting_position, -week_of_highest_charting, -genre, -release_date, -chord)
 
+scaled <- sp %>% 
+  select(-top_20) %>% 
+  scale() %>% 
+  data.frame() %>% 
+  mutate(top_20 = sp$top_20)
+```
+
+```{r}
 set.seed(1)
 
 train <- sp %>% 
@@ -51,33 +55,23 @@ y_test <- test %>%
   as.numeric()
 ```
 
-```{r}
-# PCR
-library(pls)
-
-set.seed(1)
-pcr_train <- pcr(top_20 ~ ., data = train, scale = TRUE, validation = "CV")
-summary(pcr_train)
-validationplot(pcr_train, val.type = "MSEP")
-
-pcr_preds <- predict(pcr_train, x_test, ncomp = 10)
-mean((pcr_preds - y_test)^2)
-
-pcr_full <- pcr(top_20 ~ ., data = sp, scale = TRUE, ncomp = 10)
-summary(pcr_full)
-```
 
 ```{r}
-# PLS
+# Boosting
 set.seed(1)
-pls_train <- plsr(top_20 ~ ., data = train, scale = TRUE, validation = "CV")
-summary(pls_train)
-validationplot(pls_train, val.type = "MSEP")
+boost <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
 
-pls_preds <- predict(pls_train, x_test, ncomp = 4)
-mean((pls_preds - y_test)^2)
+summary(boost)
 
-pls_full <- plsr(top_20 ~ ., data = sp, scale = TRUE, ncomp = 4)
-summary(pls_full)
+probs <- predict(boost, newdata = test, n.trees = 1000, type = "response")
+preds <- ifelse(probs > .2, 1, 0)
+table(test$top_20, preds)
 ```
+
+
+
+
+
+
+
 

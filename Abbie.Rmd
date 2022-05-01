@@ -28,7 +28,7 @@ skim(spotify_full)
 ```
 
 ```{r}
-ggplot(spotify, aes(x = highest_charting_position)) +
+ggplot(spotify_full, aes(x = highest_charting_position)) +
   geom_freqpoly(bins = 30) +
   labs(x = "Highest Charting Postion", y = "Count", title = "Distribution of Highest Charting Position")
 ```
@@ -60,11 +60,40 @@ corrplot(cor(clean), method = "circle", tl.col = "black", tl.srt = 45, type = "u
 # Methodology
 
 ```{r}
-scaled <- clean %>% 
+set.seed(1)
+
+te <- clean %>% 
+  sample_n(1000)
+
+tr <- clean %>% 
+  setdiff(te)
+
+test <- te %>% 
   select(-top_20) %>% 
   scale() %>% 
-  data.frame() 
+  data.frame()
+
+test_20 <- te %>% 
+  select(top_20) %>% 
+  .$top_20
+  
+train <- tr %>% 
+  select(-top_20) %>% 
+  scale() %>% 
+  data.frame()
+
+train_20 <- tr %>% 
+  select(top_20) %>% 
+  .$top_20
 
 
 ```
+
+### Logistic
+
+### KNN
+
+### Trees
+
+### SVM?
 

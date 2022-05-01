@@ -127,7 +127,7 @@ Wow, looks like a knn = 1 is perfect for this dataset; accurately classifies 100
 
 ```{r}
 library(leaps)
-regfit_full = regsubsets(top_20~., data = spotify, nvmax = 10, really.big = TRUE)  ## This did not finish running even after leaving it overnight. Maybe best subsets doesn't work here. 
+regfit_full = regsubsets(top_20~., data = spotify, nvmax = 5, really.big = TRUE)  ## This did not finish running even after leaving it overnight. Maybe best subsets doesn't work here. 
 summary(regfit_full)
 ```
 

@@ -4,74 +4,67 @@ date: '2022-04-17'
 output: html_document
 ---
 
-Abbie
-- Classification Trees - L14
-- SVM - L15
+# Introduction
 
 ```{r, message = FALSE}
 library(tidyverse)
 library(janitor)
+library(skimr)
+library(corrplot)
 library(gbm)
-```
+library(e1071)
 
-
-```{r, message = FALSE}
-spotify <- read_csv("spotify_dataset.csv") %>%
+spotify_full <- read_csv("spotify_dataset.csv") %>%
   clean_names() %>%
-  na.omit() %>% # 11 NAs omitted
   mutate(top_20 = ifelse(highest_charting_position <= 20, TRUE, FALSE))
 
-# Smaller subset than main doc - do we want to include streams and popularity?
-sp <- spotify %>%
-  select(-index, -song_name, -artist, -song_id, -weeks_charted, -highest_charting_position, -week_of_highest_charting, -genre, -release_date, -chord)
+head(spotify_full)
+```
 
-scaled <- sp %>% 
+# Exploratory Data Analysis
+
+```{r}
+skim(spotify_full)
+```
+
+```{r}
+ggplot(spotify, aes(x = highest_charting_position)) +
+  geom_freqpoly(bins = 30) +
+  labs(x = "Highest Charting Postion", y = "Count", title = "Distribution of Highest Charting Position")
+```
+
+```{r}
+# Should we remove duplicate song IDs?
+spotify_full %>%
+  group_by(song_id) %>%
+  count() %>%
+  filter(n > 1)
+```
+
+
+```{r}
+clean <- spotify_full %>%
+  na.omit() %>%
+  select(-index, -song_id, -weeks_charted, -week_of_highest_charting, -genre, 
+         -release_date, -chord, -song_name, -artist, -highest_charting_position)
+
+skim(clean)
+```
+
+
+```{r}
+corrplot(cor(clean), method = "circle", tl.col = "black", tl.srt = 45, type = "upper")
+```
+
+
+# Methodology
+
+```{r}
+scaled <- clean %>% 
   select(-top_20) %>% 
   scale() %>% 
-  data.frame() %>% 
-  mutate(top_20 = sp$top_20)
+  data.frame() 
+
+
 ```
-
-```{r}
-set.seed(1)
-
-train <- sp %>% 
-  sample_frac(0.5)
-
-test <- sp %>% 
-  setdiff(train)
-
-x_train <- model.matrix(top_20 ~ ., train)[, -1]
-x_test <- model.matrix(top_20 ~ ., test)[, -1]
-
-y_train <- train %>%
-  select(top_20) %>%
-  unlist() %>%
-  as.numeric()
-
-y_test <- test %>%
-  select(top_20) %>%
-  unlist() %>%
-  as.numeric()
-```
-
-
-```{r}
-# Boosting
-set.seed(1)
-boost <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
-
-summary(boost)
-
-probs <- predict(boost, newdata = test, n.trees = 1000, type = "response")
-preds <- ifelse(probs > .2, 1, 0)
-table(test$top_20, preds)
-```
-
-
-
-
-
-
-
 

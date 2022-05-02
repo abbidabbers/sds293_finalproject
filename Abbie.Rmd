@@ -140,8 +140,15 @@ glm_pred %>%
 ### Trees
 
 ```{r}
+# Boosting
+set.seed(1)
+boost <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
 
+summary(boost)
 
+probs <- predict(boost, newdata = test, n.trees = 1000, type = "response")
+preds <- ifelse(probs > .2, 1, 0)
+table(test$top_20, preds)
 ```
 
 ### SVM?

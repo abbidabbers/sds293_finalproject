@@ -16,6 +16,7 @@ library(skimr)
 library(corrplot)
 library(gbm)
 library(e1071)
+library(class)
 
 spotify_full <- read_csv("spotify_dataset.csv") %>%
   clean_names() %>%

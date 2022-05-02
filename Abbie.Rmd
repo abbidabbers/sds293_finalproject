@@ -115,26 +115,25 @@ glm_pred %>%
 ### KNN
 
 ```{r}
-# ADD SCALED VERSION OF DATA
-# val <- 0
-# kmax <- 1
-#
-# for (k in 1:100) {
-#   knn_pred <- knn(train, test, train_20, k)
-#   tab <- table(knn_pred, test_20)
-#   if ((tab[2, 2] / (tab[2, 2] + tab[1, 2])) > val) {
-#     print("hello")
-#     val <- (tab[2, 2] / (tab[2, 2] + tab[1, 2]))
-#     kmax <- k
-#   }
-# }
-#
-# val
-# kmax
-#
-# knn_preds <- knn(train, test, train_20, kmax)
-# tab <- table(knn_preds, test_20)
-# tab
+val <- 0
+kmax <- 1
+
+for (k in 1:20) {
+  set.seed(1)
+  knn_pred <- knn(scaled_train, scaled_test, train_20, k)
+  tab <- table(knn_pred, test_20)
+  if ((tab[2, 2] / (tab[2, 2] + tab[1, 2])) > val) {
+    val <- (tab[2, 2] / (tab[2, 2] + tab[1, 2]))
+    kmax <- k
+  }
+}
+
+val
+kmax
+
+
+knn_preds <- knn(scaled_train, scaled_test, train_20, kmax)
+table(knn_preds, test_20)
 ```
 
 ### Trees

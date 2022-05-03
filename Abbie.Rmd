@@ -6,6 +6,11 @@ output: html_document
 
 # Introduction
 
+The dream of any emerging new artist is to produce a ‘charting’ song, one that is on repeat on the radio and making waves across the country. Billboard, one of the biggest music and entertainment magazines in the US, tabulates the relatively popular songs in the US and internationally. These can be ranked according to sales, streams, airplay, among other categories. Produce a song that charts for a week or more, and you make a name for yourself in the music industry. Even more so is when the song was in the top 20 of those charts. 
+
+We were curious to know what kind of songs make it into the top 20 of these charts. That said, we analyzed the Spotify Top 200 Charts from 2020 and 2021 dataset for any trends or similarities in the charting songs. We wanted to know if given a set of predictors as is in the dataset, can we predict if a song will make it into the top 20 of the charts or not. 
+
+
 ```{r, message = FALSE}
 library(tidyverse)
 library(janitor)
@@ -60,6 +65,8 @@ Lastly, we created a correlation plot. There are some variables with higher than
 
 # Methodology
 
+To analyze the data, we first have to split it into two, the test and the training datasets. This will make it easier to see how well the model we would have trained on the training dataset is doing in predicting the results of the test dataset. We opted to do a `sample_n` of the first 1000 rows instead of the `frac` one because we wanted the sampled rows to correspond to those of the train/test rows for the outcome variable, which is not guaranteed if we use `frac`. Though not necessary, we chose to scale our data so we can make it generalizable. 
+
 ```{r}
 set.seed(1)
 
@@ -88,7 +95,10 @@ train_20 <- train %>%
   .$top_20
 ```
 
-### Logistic
+
+We then incoporated different models in trying to understand the data a bit more, starting with Logistic Regression.
+
+### Logistic Regression
 
 ```{r}
 glm_fit <- glm(top_20 ~ .,

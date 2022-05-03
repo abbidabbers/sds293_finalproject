@@ -128,6 +128,8 @@ glm_pred %>%
 ```
 
 
+Using 13 of the initial 23 predictors, we fit the logistic regression model on the training data and tested its accuracy on the test dataset. What we notice is that the model does pretty well in predicting songs that will make it into the top 20, correctly categorizing the songs 87% of the time. It's worth mentioning though that the model performs better when categorizing songs that didn't make it into the top 20 as compared to those that did, with the former having a test accuracy of 98% while the latter has a poor 28% test accuracy. Hence this is not the best model predicting if a song will make it into the top 20.
+
 ### KNN
 
 ```{r}

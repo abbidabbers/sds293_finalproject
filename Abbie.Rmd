@@ -19,6 +19,7 @@ library(corrplot)
 library(gbm)
 library(e1071)
 library(class)
+library(tree)
 
 spotify_full <- read_csv("spotify_dataset.csv") %>%
   clean_names() %>%
@@ -158,6 +159,18 @@ table(knn_preds, test_20)
 ### Trees
 
 ```{r}
+tree <- tree(top_20 ~ ., train)
+
+summary(tree)
+
+tree_probs <- predict(tree, test, type = "vector")[,2]
+tree_preds <- ifelse(tree_probs > .2, TRUE, FALSE)
+table(tree_preds, test$top_20)
+mean(tree_preds != test$top_20)
+```
+
+
+```{r}
 # Boosting
 set.seed(1)
 boost_fit <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
@@ -165,9 +178,12 @@ boost_fit <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 
 summary(boost_fit)
 
 boost_probs <- predict(boost_fit, newdata = test, n.trees = 1000, type = "response")
-boost_preds <- ifelse(boost_probs > .2, 1, 0)
+boost_preds <- ifelse(boost_probs > .2, TRUE, FALSE)
 table(test$top_20, boost_preds)
+mean(boost_preds != test$top_20)
 ```
+
+
 
 ### SVM?
 
@@ -183,7 +199,7 @@ test <- clean %>%
 train <- clean %>%
   setdiff(test)
 
-svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "linear", scale = FALSE, cost = 0.01)
+svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "linear", scale = TRUE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
 
 summary(svm_fit)
 

@@ -28,12 +28,16 @@ head(spotify_full)
 skim(spotify_full)
 ```
 
+The first thing we noticed when looking at the skim output is that there are a small number of rows with missing values. Since there aren't very many of them, we dropped them when creating our cleaned data set. Something else that caught our eye is that there are fewer song IDs than there are rows, which means some songs are repeated since each song has a unique ID number. However, upon further observation of the data, repeat song IDs are different versions of the same song with different charting information, though the variables that describe the songs features are usually the same.  As such, we decided to keep them because sometimes one version was a top 20 song, while the other wasn't. Also, looking at the small histograms created for the numerical variables, we noticed that some were a bit skewed, while a few were more evenly distributed. Therefore, for the procedures that are sensitive to scale, it reaffirmed our decision to scale the data.
+
+
 ```{r}
 ggplot(spotify_full, aes(x = highest_charting_position)) +
   geom_freqpoly(bins = 30) +
   labs(x = "Highest Charting Postion", y = "Count", title = "Distribution of Highest Charting Position")
 ```
 
+For our primary variable, highest charting position (the variable from which the top 20 variable is calculated), we looked at a more detailed frequency plot for variation, and saw that it was mostly even.
 
 ```{r}
 clean <- spotify_full %>%
@@ -46,10 +50,12 @@ clean <- spotify_full %>%
 skim(clean)
 ```
 
+To clean the data, we omitted the few rows with missing values, the highest charting position variable because top 20 is derived from it so it will be highly correlated, and the variables that contain characters because, while some of them might contain interesting information, it is beyond the scope of this project to try and incorporate them as there are too many different values to make them factors.
 
 ```{r}
 corrplot(cor(clean), method = "circle", tl.col = "black", tl.srt = 45, type = "upper")
 ```
+Lastly, we created a correlation plot. There are some variables with higher than expected correlation, but we decided to leave them all in.
 
 
 # Methodology
@@ -133,6 +139,7 @@ kmax
 
 
 knn_preds <- knn(scaled_train, scaled_test, train_20, kmax)
+mean(knn_preds != test_20)
 table(knn_preds, test_20)
 ```
 
@@ -141,19 +148,32 @@ table(knn_preds, test_20)
 ```{r}
 # Boosting
 set.seed(1)
-boost <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
+boost_fit <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
 
-summary(boost)
+summary(boost_fit)
 
-probs <- predict(boost, newdata = test, n.trees = 1000, type = "response")
-preds <- ifelse(probs > .2, 1, 0)
-table(test$top_20, preds)
+boost_probs <- predict(boost_fit, newdata = test, n.trees = 1000, type = "response")
+boost_preds <- ifelse(boost_probs > .2, 1, 0)
+table(test$top_20, boost_preds)
 ```
 
 ### SVM?
 
 ```{r}
-
+# set.seed(1)
+# 
+# factor_clean <- clean %>% 
+#   mutate()
+# 
+# svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "polynomial", scale = FALSE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
+# 
+# summary(svm_fit)
+# 
+# bestmod <- svm_fit$best.model
+# summary(bestmod)
+# 
+# svm_pred <- predict(bestmod, test)
+# table(predicted = svm_pred, true = test$top_20)
 
 ```
 

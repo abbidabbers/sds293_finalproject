@@ -172,20 +172,26 @@ table(test$top_20, boost_preds)
 ### SVM?
 
 ```{r}
-# set.seed(1)
-# 
-# factor_clean <- clean %>% 
-#   mutate()
-# 
-# svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "polynomial", scale = FALSE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
-# 
-# summary(svm_fit)
-# 
-# bestmod <- svm_fit$best.model
-# summary(bestmod)
-# 
-# svm_pred <- predict(bestmod, test)
-# table(predicted = svm_pred, true = test$top_20)
+set.seed(1)
+
+clean <- clean %>% 
+  mutate(top_20 = as.factor(top_20))
+
+test <- clean %>%
+  sample_n(1000)
+
+train <- clean %>%
+  setdiff(test)
+
+svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "linear", scale = FALSE, cost = 0.01)
+
+summary(svm_fit)
+
+bestmod <- svm_fit$best.model
+summary(bestmod)
+
+svm_pred <- predict(bestmod, test)
+table(predicted = svm_pred, true = test$top_20)
 
 ```
 

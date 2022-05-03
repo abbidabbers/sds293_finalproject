@@ -399,7 +399,7 @@ head(spotify_full)</code></pre>
 </div>
 <div id="exploratory-data-analysis" class="section level1">
 <h1>Exploratory Data Analysis</h1>
-<pre class="r"><code>skim_without_charts(spotify_full)</code></pre>
+<pre class="r"><code>skim(spotify_full)</code></pre>
 <table>
 <caption>Data summary</caption>
 <tbody>
@@ -574,18 +574,19 @@ head(spotify_full)</code></pre>
 </tbody>
 </table>
 <p><strong>Variable type: numeric</strong></p>
-<table style="width:100%;">
+<table>
 <colgroup>
-<col width="19%" />
+<col width="18%" />
 <col width="7%" />
 <col width="10%" />
-<col width="9%" />
-<col width="9%" />
 <col width="8%" />
 <col width="8%" />
 <col width="8%" />
-<col width="9%" />
-<col width="9%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="4%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -599,6 +600,7 @@ head(spotify_full)</code></pre>
 <th align="right">p50</th>
 <th align="right">p75</th>
 <th align="right">p100</th>
+<th align="left">hist</th>
 </tr>
 </thead>
 <tbody>
@@ -613,6 +615,7 @@ head(spotify_full)</code></pre>
 <td align="right">778.50</td>
 <td align="right">1167.25</td>
 <td align="right">1556.00</td>
+<td align="left">▇▇▇▇▇</td>
 </tr>
 <tr class="even">
 <td align="left">highest_charting_position</td>
@@ -625,6 +628,7 @@ head(spotify_full)</code></pre>
 <td align="right">80.00</td>
 <td align="right">137.00</td>
 <td align="right">200.00</td>
+<td align="left">▇▇▆▅▅</td>
 </tr>
 <tr class="odd">
 <td align="left">number_of_times_charted</td>
@@ -637,6 +641,7 @@ head(spotify_full)</code></pre>
 <td align="right">4.00</td>
 <td align="right">12.00</td>
 <td align="right">142.00</td>
+<td align="left">▇▁▁▁▁</td>
 </tr>
 <tr class="even">
 <td align="left">streams</td>
@@ -649,6 +654,7 @@ head(spotify_full)</code></pre>
 <td align="right">5275747.50</td>
 <td align="right">6455044.25</td>
 <td align="right">48633449.00</td>
+<td align="left">▇▁▁▁▁</td>
 </tr>
 <tr class="odd">
 <td align="left">artist_followers</td>
@@ -661,6 +667,7 @@ head(spotify_full)</code></pre>
 <td align="right">6852509.00</td>
 <td align="right">22698747.00</td>
 <td align="right">83337783.00</td>
+<td align="left">▇▂▂▁▁</td>
 </tr>
 <tr class="even">
 <td align="left">popularity</td>
@@ -673,6 +680,7 @@ head(spotify_full)</code></pre>
 <td align="right">73.00</td>
 <td align="right">80.00</td>
 <td align="right">100.00</td>
+<td align="left">▁▁▂▇▃</td>
 </tr>
 <tr class="odd">
 <td align="left">danceability</td>
@@ -685,6 +693,7 @@ head(spotify_full)</code></pre>
 <td align="right">0.71</td>
 <td align="right">0.80</td>
 <td align="right">0.98</td>
+<td align="left">▁▂▅▇▃</td>
 </tr>
 <tr class="even">
 <td align="left">energy</td>
@@ -697,6 +706,7 @@ head(spotify_full)</code></pre>
 <td align="right">0.64</td>
 <td align="right">0.75</td>
 <td align="right">0.97</td>
+<td align="left">▁▂▆▇▃</td>
 </tr>
 <tr class="odd">
 <td align="left">loudness</td>
@@ -709,6 +719,7 @@ head(spotify_full)</code></pre>
 <td align="right">-5.99</td>
 <td align="right">-4.71</td>
 <td align="right">1.51</td>
+<td align="left">▁▁▁▇▁</td>
 </tr>
 <tr class="even">
 <td align="left">speechiness</td>
@@ -721,6 +732,7 @@ head(spotify_full)</code></pre>
 <td align="right">0.08</td>
 <td align="right">0.16</td>
 <td align="right">0.88</td>
+<td align="left">▇▂▁▁▁</td>
 </tr>
 <tr class="odd">
 <td align="left">acousticness</td>
@@ -733,6 +745,7 @@ head(spotify_full)</code></pre>
 <td align="right">0.16</td>
 <td align="right">0.39</td>
 <td align="right">0.99</td>
+<td align="left">▇▃▂▁▁</td>
 </tr>
 <tr class="even">
 <td align="left">liveness</td>
@@ -745,6 +758,7 @@ head(spotify_full)</code></pre>
 <td align="right">0.12</td>
 <td align="right">0.22</td>
 <td align="right">0.96</td>
+<td align="left">▇▂▁▁▁</td>
 </tr>
 <tr class="odd">
 <td align="left">tempo</td>
@@ -757,6 +771,7 @@ head(spotify_full)</code></pre>
 <td align="right">122.01</td>
 <td align="right">143.86</td>
 <td align="right">205.27</td>
+<td align="left">▁▇▇▅▂</td>
 </tr>
 <tr class="even">
 <td align="left">duration_ms</td>
@@ -769,6 +784,7 @@ head(spotify_full)</code></pre>
 <td align="right">193591.00</td>
 <td align="right">218902.00</td>
 <td align="right">588139.00</td>
+<td align="left">▁▇▁▁▁</td>
 </tr>
 <tr class="odd">
 <td align="left">valence</td>
@@ -781,6 +797,7 @@ head(spotify_full)</code></pre>
 <td align="right">0.51</td>
 <td align="right">0.69</td>
 <td align="right">0.98</td>
+<td align="left">▃▆▇▆▃</td>
 </tr>
 </tbody>
 </table>

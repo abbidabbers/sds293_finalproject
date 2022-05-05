@@ -242,6 +242,7 @@ Our main takeaway from this project is that there is a likely a better model tha
 
 # References
 
+- [Dataset](https://www.kaggle.com/datasets/sashankpillai/spotify-top-200-charts-20202021)
 - [EDA Inspriation](https://www.kaggle.com/code/ippudkiippude/spotify-dataset-eda-prediction-classification) 
 - [Correlation Plots](http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram#:~:text=Visualization%20methods,-Seven%20different%20visualization&text=Positive%20correlations%20are%20displayed%20in,proportional%20to%20the%20correlation%20coefficients)
 

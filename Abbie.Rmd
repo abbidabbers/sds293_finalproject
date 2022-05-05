@@ -214,3 +214,19 @@ table(predicted = svm_pred, true = test$top_20)
 
 ```
 
+In a bid to improve the results from the logistic regression, we incorporated `SVM` with a linear kernel and the best cost value of 1. We first had to set the outcome variable as a factor. The model used 138 support vectors, and had a high test accuracy of 86.2%. That said, the accuracy for the songs that made it into the top 20 was even lower at 24% so it didn't do as well as we had hoped. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

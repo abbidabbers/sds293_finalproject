@@ -369,6 +369,20 @@ pre code {
 
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
+<p>The dream of any emerging new artist is to produce a ‘charting’ song,
+one that is on repeat on the radio and making waves across the country.
+Billboard, one of the biggest music and entertainment magazines in the
+US, tabulates the relatively popular songs in the US and
+internationally. These can be ranked according to sales, streams,
+airplay, among other categories. Produce a song that charts for a week
+or more, and you make a name for yourself in the music industry. Even
+more so is when the song was in the top 20 of those charts.</p>
+<p>We were curious to know what kind of songs make it into the top 20 of
+these charts. That said, we analyzed the Spotify Top 200 Charts from
+2020 and 2021 dataset for any trends or similarities in the charting
+songs. We wanted to know if given a set of predictors as is in the
+dataset, can we predict if a song will make it into the top 20 of the
+charts or not.</p>
 <pre class="r"><code>library(tidyverse)
 library(janitor)
 library(skimr)
@@ -376,6 +390,7 @@ library(corrplot)
 library(gbm)
 library(e1071)
 library(class)
+library(tree)
 
 spotify_full &lt;- read_csv(&quot;spotify_dataset.csv&quot;) %&gt;%
   clean_names() %&gt;%
@@ -1109,6 +1124,15 @@ in.</p>
 </div>
 <div id="methodology" class="section level1">
 <h1>Methodology</h1>
+<p>To analyze the data, we first have to split it into two, the test and
+the training datasets. This will make it easier to see how well the
+model we would have trained on the training dataset is doing in
+predicting the results of the test dataset. We opted to do a
+<code>sample_n</code> of the first 1000 rows instead of the
+<code>frac</code> one because we wanted the sampled rows to correspond
+to those of the train/test rows for the outcome variable, which is not
+guaranteed if we use <code>frac</code>. Though not necessary, we chose
+to scale our data so we can make it generalizable.</p>
 <pre class="r"><code>set.seed(1)
 
 test &lt;- clean %&gt;%
@@ -1134,8 +1158,10 @@ scaled_train &lt;- train %&gt;%
 train_20 &lt;- train %&gt;%
   select(top_20) %&gt;%
   .$top_20</code></pre>
-<div id="logistic" class="section level3">
-<h3>Logistic</h3>
+<p>We then incoporated different models in trying to understand the data
+a bit more, starting with Logistic Regression.</p>
+<div id="logistic-regression" class="section level2">
+<h2>Logistic Regression</h2>
 <pre class="r"><code>glm_fit &lt;- glm(top_20 ~ .,
   data = train,
   family = binomial
@@ -1164,9 +1190,18 @@ glm_pred %&gt;%
   )</code></pre>
 <pre><code>##   score recip
 ## 1 0.865 0.135</code></pre>
+<p>Using 13 of the initial 23 predictors, we fit the logistic regression
+model on the training data and tested its accuracy on the test dataset.
+What we notice is that the model does pretty well in predicting songs
+that will make it into the top 20, correctly categorizing the songs 87%
+of the time. It’s worth mentioning though that the model performs better
+when categorizing songs that didn’t make it into the top 20 as compared
+to those that did, with the former having a test accuracy of 98% while
+the latter has a poor 28% test accuracy. Hence this is not the best
+model predicting if a song will make it into the top 20.</p>
 </div>
-<div id="knn" class="section level3">
-<h3>KNN</h3>
+<div id="knn" class="section level2">
+<h2>KNN</h2>
 <pre class="r"><code>val &lt;- 0
 kmax &lt;- 1
 
@@ -1192,9 +1227,18 @@ mean(knn_preds != test_20)</code></pre>
 ## knn_preds FALSE TRUE
 ##     FALSE   780  106
 ##     TRUE     57   57</code></pre>
+<p>Using the scaled data, we tried <code>knn</code> classification to
+see how well it performed on the test dataset. From a possible 20, we
+selected the best value of k that gave the lowest testing error rate and
+that was 1. The model did particularly well in classifying songs that
+did not make it into the top 20 charts, having a low testing error rate
+6.8%. However, the accuracy for songs that did make it into the top 20
+is still low, albeit higher than for logistic regression-a mere 35%.
+That said, the overall test accuracy was 83.7%, lower in comparison to
+the logistic regression.</p>
 </div>
-<div id="trees" class="section level3">
-<h3>Trees</h3>
+<div id="trees" class="section level2">
+<h2>Trees</h2>
 <pre class="r"><code># Boosting
 set.seed(1)
 boost_fit &lt;- gbm(top_20 ~., data = train, distribution = &quot;bernoulli&quot;, n.trees = 1000, shrinkage = .01)
@@ -1216,29 +1260,84 @@ summary(boost_fit)</code></pre>
 ## liveness                               liveness  0.4944183
 ## danceability                       danceability  0.4893554</code></pre>
 <pre class="r"><code>boost_probs &lt;- predict(boost_fit, newdata = test, n.trees = 1000, type = &quot;response&quot;)
-boost_preds &lt;- ifelse(boost_probs &gt; .2, 1, 0)
+boost_preds &lt;- ifelse(boost_probs &gt; .2, TRUE, FALSE)
 table(test$top_20, boost_preds)</code></pre>
 <pre><code>##        boost_preds
-##           0   1
-##   FALSE 739  98
-##   TRUE   47 116</code></pre>
+##         FALSE TRUE
+##   FALSE   739   98
+##   TRUE     47  116</code></pre>
+<pre class="r"><code>mean(boost_preds != test$top_20)</code></pre>
+<pre><code>## [1] 0.145</code></pre>
 </div>
-<div id="svm" class="section level3">
-<h3>SVM?</h3>
-<pre class="r"><code># set.seed(1)
-# 
-# factor_clean &lt;- clean %&gt;% 
-#   mutate()
-# 
-# svm_fit &lt;- tune(svm, top_20 ~ ., data = train, kernel = &quot;polynomial&quot;, scale = FALSE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
-# 
-# summary(svm_fit)
-# 
-# bestmod &lt;- svm_fit$best.model
-# summary(bestmod)
-# 
-# svm_pred &lt;- predict(bestmod, test)
-# table(predicted = svm_pred, true = test$top_20)</code></pre>
+<div id="svm" class="section level2">
+<h2>SVM?</h2>
+<pre class="r"><code>set.seed(1)
+
+clean &lt;- clean %&gt;% 
+  mutate(top_20 = as.factor(top_20))
+
+test &lt;- clean %&gt;%
+  sample_n(1000)
+
+train &lt;- clean %&gt;%
+  setdiff(test)
+
+svm_fit &lt;- tune(svm, top_20 ~ ., data = train, kernel = &quot;linear&quot;, scale = TRUE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
+
+summary(svm_fit)</code></pre>
+<pre><code>## 
+## Parameter tuning of &#39;svm&#39;:
+## 
+## - sampling method: 10-fold cross validation 
+## 
+## - best parameters:
+##  cost
+##     1
+## 
+## - best performance: 0.1118519 
+## 
+## - Detailed performance results:
+##    cost     error dispersion
+## 1 1e-02 0.1264646 0.04780966
+## 2 1e-01 0.1136700 0.03801723
+## 3 1e+00 0.1118519 0.03468460
+## 4 5e+00 0.1118519 0.03468460
+## 5 1e+01 0.1118519 0.03468460
+## 6 1e+02 0.1118519 0.03468460</code></pre>
+<pre class="r"><code>bestmod &lt;- svm_fit$best.model
+summary(bestmod)</code></pre>
+<pre><code>## 
+## Call:
+## best.tune(method = svm, train.x = top_20 ~ ., data = train, ranges = list(cost = c(0.01, 
+##     0.1, 1, 5, 10, 100)), kernel = &quot;linear&quot;, scale = TRUE)
+## 
+## 
+## Parameters:
+##    SVM-Type:  C-classification 
+##  SVM-Kernel:  linear 
+##        cost:  1 
+## 
+## Number of Support Vectors:  138
+## 
+##  ( 68 70 )
+## 
+## 
+## Number of Classes:  2 
+## 
+## Levels: 
+##  FALSE TRUE</code></pre>
+<pre class="r"><code>svm_pred &lt;- predict(bestmod, test)
+table(predicted = svm_pred, true = test$top_20)</code></pre>
+<pre><code>##          true
+## predicted FALSE TRUE
+##     FALSE   823  124
+##     TRUE     14   39</code></pre>
+<p>In a bid to improve the results from the logistic regression, we
+incorporated <code>SVM</code> with a linear kernel and the best cost
+value of 1. We first had to set the outcome variable as a factor. The
+model used 138 support vectors, and had a high test accuracy of 86.2%.
+That said, the accuracy for the songs that made it into the top 20 was
+even lower at 24% so it didn’t do as well as we had hoped.</p>
 </div>
 </div>
 

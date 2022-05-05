@@ -1,9 +1,8 @@
 ---
 title: "Final Project"
 author: "Abbie Benfield, Annah Mutaya"
-date: "12/16/2021"
+date: "5/5/2022"
 output:
-  pdf_document: default
   html_document: default
 ---
 
@@ -22,6 +21,7 @@ library(corrplot)
 library(gbm)
 library(e1071)
 library(class)
+library(tree)
 
 spotify_full <- read_csv("spotify_dataset.csv") %>%
   clean_names() %>%
@@ -101,7 +101,7 @@ train_20 <- train %>%
 
 We then incoporated different models in trying to understand the data a bit more, starting with Logistic Regression.
 
-### Logistic Regression
+## Logistic Regression
 
 ```{r}
 glm_fit <- glm(top_20 ~ .,
@@ -133,7 +133,7 @@ glm_pred %>%
 
 Using 13 of the initial 23 predictors, we fit the logistic regression model on the training data and tested its accuracy on the test dataset. What we notice is that the model does pretty well in predicting songs that will make it into the top 20, correctly categorizing the songs 87% of the time. It's worth mentioning though that the model performs better when categorizing songs that didn't make it into the top 20 as compared to those that did, with the former having a test accuracy of 98% while the latter has a poor 28% test accuracy. Hence this is not the best model predicting if a song will make it into the top 20.
 
-### KNN
+## KNN
 
 ```{r}
 val <- 0
@@ -158,7 +158,10 @@ mean(knn_preds != test_20)
 table(knn_preds, test_20)
 ```
 
-### Trees
+Using the scaled data, we tried `knn` classification to see how well it performed on the test dataset. From a possible 20, we selected the best value of k that gave the lowest testing error rate and that was 1. The model did particularly well in classifying songs that did not make it into the top 20 charts, having a low testing error rate 6.8%. However, the accuracy for songs that did make it into the top 20 is still low, albeit higher than for logistic regression-a mere 35%. That said, the overall test accuracy was 83.7%, lower in comparison to the logistic regression.  
+
+
+## Trees
 
 ```{r}
 # Boosting
@@ -168,21 +171,28 @@ boost_fit <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 
 summary(boost_fit)
 
 boost_probs <- predict(boost_fit, newdata = test, n.trees = 1000, type = "response")
-boost_preds <- ifelse(boost_probs > .2, 1, 0)
+boost_preds <- ifelse(boost_probs > .2, TRUE, FALSE)
 table(test$top_20, boost_preds)
+mean(boost_preds != test$top_20)
 ```
 
-### SVM?
+
+
+## SVM?
 
 ```{r}
-# set.seed(1)
-# 
-# factor_clean <- clean %>% 
-#   mutate()
+set.seed(1)
 
-top_20_factor <- as.factor(train$top_20)
+clean <- clean %>% 
+  mutate(top_20 = as.factor(top_20))
 
-svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "polynomial", scale = FALSE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
+test <- clean %>%
+  sample_n(1000)
+
+train <- clean %>%
+  setdiff(test)
+
+svm_fit <- tune(svm, top_20 ~ ., data = train, kernel = "linear", scale = TRUE, ranges = list(cost = c(0.01, 0.1, 1, 5, 10, 100)))
 
 summary(svm_fit)
 
@@ -193,3 +203,6 @@ svm_pred <- predict(bestmod, test)
 table(predicted = svm_pred, true = test$top_20)
 
 ```
+
+In a bid to improve the results from the logistic regression, we incorporated `SVM` with a linear kernel and the best cost value of 1. We first had to set the outcome variable as a factor. The model used 138 support vectors, and had a high test accuracy of 86.2%. That said, the accuracy for the songs that made it into the top 20 was even lower at 24% so it didn't do as well as we had hoped. 
+

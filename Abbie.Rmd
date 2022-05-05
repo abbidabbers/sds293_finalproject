@@ -162,18 +162,6 @@ Using the scaled data, we tried `knn` classification to see how well it performe
 ## Trees
 
 ```{r}
-tree <- tree(top_20 ~ ., train)
-
-summary(tree)
-
-tree_probs <- predict(tree, test, type = "vector")[,2]
-tree_preds <- ifelse(tree_probs > .2, TRUE, FALSE)
-table(tree_preds, test$top_20)
-mean(tree_preds != test$top_20)
-```
-
-
-```{r}
 # Boosting
 set.seed(1)
 boost_fit <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)

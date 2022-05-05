@@ -8,10 +8,7 @@ output:
 
 # Introduction
 
-The dream of any emerging new artist is to produce a ‘charting’ song, one that is on repeat on the radio and making waves across the country. Billboard, one of the biggest music and entertainment magazines in the US, tabulates the relatively popular songs in the US and internationally. These can be ranked according to sales, streams, airplay, among other categories. Produce a song that charts for a week or more, and you make a name for yourself in the music industry. Even more so is when the song was in the top 20 of those charts. 
-
-We were curious to know what kind of songs make it into the top 20 of these charts. That said, we analyzed the Spotify Top 200 Charts from 2020 and 2021 dataset for any trends or similarities in the charting songs. We wanted to know if given a set of predictors as is in the dataset, can we predict if a song will make it into the top 20 of the charts or not. 
-
+The dream of any emerging new artist is to produce a 'charting' song, one that is on repeat on the radio and making waves across the country. For our project, we decided to analyze the Spotify Top 200 Charts to see whether we could build a model that accurately predicts whether a song makes it into the top 20. The [dataset]((https://www.kaggle.com/datasets/sashankpillai/spotify-top-200-charts-20202021)) we found consists of all 1556 songs found on the Spotify Top 200 Charts in 2020 and 2021, described by 23 different variables.
 
 ```{r, message = FALSE}
 library(tidyverse)
@@ -21,7 +18,6 @@ library(corrplot)
 library(gbm)
 library(e1071)
 library(class)
-library(tree)
 
 spotify_full <- read_csv("spotify_dataset.csv") %>%
   clean_names() %>%
@@ -36,8 +32,7 @@ head(spotify_full)
 skim(spotify_full)
 ```
 
-The first thing we noticed when looking at the skim output is that there are a small number of rows with missing values. Since there aren't very many of them, we dropped them when creating our cleaned data set. Something else that caught our eye is that there are fewer song IDs than there are rows, which means some songs are repeated since each song has a unique ID number. However, upon further observation of the data, repeat song IDs are different versions of the same song with different charting information, though the variables that describe the songs features are usually the same.  As such, we decided to keep them because sometimes one version was a top 20 song, while the other wasn't. Also, looking at the small histograms created for the numerical variables, we noticed that some were a bit skewed, while a few were more evenly distributed. Therefore, for the procedures that are sensitive to scale, it reaffirmed our decision to scale the data.
-
+The first thing we noticed when looking at the skim output is that there are a small number of rows with missing values. Since there aren't many of them, we dropped them when creating our cleaned data set. Something else that caught our eye is that there are fewer song IDs than rows, which means some songs repeat since each has a unique ID number. However, upon further observation, repeat IDs are separate versions of the song with different charting information, though the variables that describe the songs' features are usually the same. Therefore, we decided to keep them because sometimes one version was a top 20 song while the other wasn't. Also, looking at the small histograms created for the numerical variables, we noticed that some were a bit skewed while others were distributed more evenly. Thus, it reaffirmed our decision to scale the data for the procedures that are sensitive to scale.
 
 ```{r}
 ggplot(spotify_full, aes(x = highest_charting_position)) +
@@ -45,7 +40,7 @@ ggplot(spotify_full, aes(x = highest_charting_position)) +
   labs(x = "Highest Charting Postion", y = "Count", title = "Distribution of Highest Charting Position")
 ```
 
-For our primary variable, highest charting position (the variable from which the top 20 variable is calculated), we looked at a more detailed frequency plot for variation, and saw that it was mostly even.
+For our primary variable, highest charting position (which is how we calculated top_20), we looked at a more detailed frequency plot to observe variation and saw that it was mostly evenly distributed.
 
 ```{r}
 clean <- spotify_full %>%
@@ -58,17 +53,17 @@ clean <- spotify_full %>%
 skim(clean)
 ```
 
-To clean the data, we omitted the few rows with missing values, the highest charting position variable because top 20 is derived from it so it will be highly correlated, and the variables that contain characters because, while some of them might contain interesting information, it is beyond the scope of this project to try and incorporate them as there are too many different values to make them factors.
+To clean the data, we omitted the rows with missing values, the highest charting position variable because top_20 is derived from it, and the variables that contain characters because, while some of them may have interesting information, it is beyond the scope of this project to try and incorporate them as there are too many unique values to make them factors.
 
 ```{r}
 corrplot(cor(clean), method = "circle", tl.col = "black", tl.srt = 45, type = "upper")
 ```
-Lastly, we created a correlation plot. There are some variables with higher than expected correlation, but we decided to leave them all in.
 
+Lastly, we created a correlation plot. There are some variables with higher than expected correlation, but we decided to leave them all in because, except for energy and loudness, they weren't strongly correlated. We kept energy and loudness because they weren't highly correlated with other variables.
 
 # Methodology
 
-To analyze the data, we first have to split it into two, the test and the training datasets. This will make it easier to see how well the model we would have trained on the training dataset is doing in predicting the results of the test dataset. We opted to do a `sample_n` of the first 1000 rows instead of the `frac` one because we wanted the sampled rows to correspond to those of the train/test rows for the outcome variable, which is not guaranteed if we use `frac`. Though not necessary, we chose to scale our data so we can make it generalizable. 
+To analyze the data, we first have to split it into test and training datasets. We opted to do a sample of the first 1000 rows instead of using a fraction because we wanted the sampled rows to correspond to the rows of the outcome variable, which would not be guaranteed if we used a fraction. Though not necessary, we chose to scale our data to make it generalizable.
 
 ```{r}
 set.seed(1)
@@ -98,8 +93,7 @@ train_20 <- train %>%
   .$top_20
 ```
 
-
-We then incoporated different models in trying to understand the data a bit more, starting with Logistic Regression.
+We then tried different models to try and find the one best accuracy, starting with logistic regression.
 
 ## Logistic Regression
 
@@ -128,12 +122,15 @@ glm_pred %>%
     score = mean(pred == top_20),
     recip = mean(pred != top_20)
   )
+
+45 / (45 + 118)
 ```
 
-
-Using 13 of the initial 23 predictors, we fit the logistic regression model on the training data and tested its accuracy on the test dataset. What we notice is that the model does pretty well in predicting songs that will make it into the top 20, correctly categorizing the songs 87% of the time. It's worth mentioning though that the model performs better when categorizing songs that didn't make it into the top 20 as compared to those that did, with the former having a test accuracy of 98% while the latter has a poor 28% test accuracy. Hence this is not the best model predicting if a song will make it into the top 20.
+After fitting the logistic regression model, we notice that the model does pretty well in predicting whether a song is in the top 20, incorrectly categorizing only 13.5% of the time. However, it's worth mentioning that the model performs better when classifying songs that didn't make it into the top 20 compared to those that did. The former has a test accuracy of 98%, while the latter has a poor test accuracy of only 28%. Hence this is not the best model for predicting whether a song will make it into the top 20.
 
 ## KNN
+
+We next tried KNN.
 
 ```{r}
 val <- 0
@@ -158,15 +155,16 @@ mean(knn_preds != test_20)
 table(knn_preds, test_20)
 ```
 
-Using the scaled data, we tried `knn` classification to see how well it performed on the test dataset. From a possible 20, we selected the best value of k that gave the lowest testing error rate and that was 1. The model did particularly well in classifying songs that did not make it into the top 20 charts, having a low testing error rate 6.8%. However, the accuracy for songs that did make it into the top 20 is still low, albeit higher than for logistic regression-a mere 35%. That said, the overall test accuracy was 83.7%, lower in comparison to the logistic regression.  
-
+Using the scaled data, we tried KNN classification to see how well it performed on the test dataset. From a possible 20, we selected the best value of k that gave the lowest testing error rate, which was 1. KNN did better than the logistic model at correctly classifying top 20 songs, though still relatively poorly, at only 35% accurate. Additionally, the overall error rate was worse, at 16.3%.
 
 ## Trees
+
+We also tried a tree model with boosting.
 
 ```{r}
 # Boosting
 set.seed(1)
-boost_fit <- gbm(top_20 ~., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
+boost_fit <- gbm(top_20 ~ ., data = train, distribution = "bernoulli", n.trees = 1000, shrinkage = .01)
 
 summary(boost_fit)
 
@@ -174,16 +172,19 @@ boost_probs <- predict(boost_fit, newdata = test, n.trees = 1000, type = "respon
 boost_preds <- ifelse(boost_probs > .2, TRUE, FALSE)
 table(test$top_20, boost_preds)
 mean(boost_preds != test$top_20)
+116 / (98 + 116)
 ```
 
+Tree boosting did better than both logistic regression and KNN at accurately predicting top 20 songs, with an accuracy of 54%, though still not the best. Its overall test error rate was between logistic and KNN, at 14.5%
 
+## SVM
 
-## SVM?
+The last model we tried was SVM.
 
 ```{r}
 set.seed(1)
 
-clean <- clean %>% 
+clean <- clean %>%
   mutate(top_20 = as.factor(top_20))
 
 test <- clean %>%
@@ -202,7 +203,42 @@ summary(bestmod)
 svm_pred <- predict(bestmod, test)
 table(predicted = svm_pred, true = test$top_20)
 
+(14 + 124) / 1000 # Overall error rate
+39 / (39 + 124) # Accuracy rate for top 20 classification
 ```
 
-In a bid to improve the results from the logistic regression, we incorporated `SVM` with a linear kernel and the best cost value of 1. We first had to set the outcome variable as a factor. The model used 138 support vectors, and had a high test accuracy of 86.2%. That said, the accuracy for the songs that made it into the top 20 was even lower at 24% so it didn't do as well as we had hoped. 
+In a bid to improve the results from the logistic regression, we tried an SVM model with a linear kernel and the found the best cost value was 1. We first had to change the outcome variable to a factor. The model used 138 support vectors, and though the best model output claims the overall test error rate was 11.2%, the manual calculation using the actual predicted values gave a test error rate of 13.8%. Additionally, the accuracy for the songs that made it into the top 20 was even lower at 24% so it didn't do as well as we had hoped.
+
+Though none of the models did extremely well, we choose the tree boosting model as our final model because it had the highest classification accuracy for top 20 songs, even though it had a higher overall error rate than logistic and SVM (see table below).
+
+|                    | Logistic | KNN | Tree | SVM |
+|--------------------|----------|-----|------|-----|
+| Overall Error Rate | 13%      | 16% | 14%  | 13% |
+| Top 20 Accuracy    | 28%      | 35% | 54%  | 24% |
+
+: Model Comparison
+
+# Conclusion
+
+Our final model step was to apply our chosen tree boosting model to full dataset, first converting the top 20 variable back to a logical type.
+
+```{r}
+clean <- clean %>%
+  mutate(top_20 = as.logical(top_20))
+
+final_probs <- predict(boost_fit, newdata = clean, n.trees = 1000, type = "response")
+final_preds <- ifelse(final_probs > .2, TRUE, FALSE)
+table(clean$top_20, final_preds)
+mean(final_preds != clean$top_20)
+178 / (141 + 178)
+```
+
+The results were not significantly different from those obtained from the test data, though they were slightly better, with an overall error rate of 13.0% and a top 20 accuracy rate of 56%.
+
+
+
+
+
+
+
 

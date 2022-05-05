@@ -99,7 +99,7 @@ train_20 <- train %>%
 
 We then incoporated different models in trying to understand the data a bit more, starting with Logistic Regression.
 
-### Logistic Regression
+## Logistic Regression
 
 ```{r}
 glm_fit <- glm(top_20 ~ .,
@@ -131,7 +131,7 @@ glm_pred %>%
 
 Using 13 of the initial 23 predictors, we fit the logistic regression model on the training data and tested its accuracy on the test dataset. What we notice is that the model does pretty well in predicting songs that will make it into the top 20, correctly categorizing the songs 87% of the time. It's worth mentioning though that the model performs better when categorizing songs that didn't make it into the top 20 as compared to those that did, with the former having a test accuracy of 98% while the latter has a poor 28% test accuracy. Hence this is not the best model predicting if a song will make it into the top 20.
 
-### KNN
+## KNN
 
 ```{r}
 val <- 0
@@ -156,7 +156,10 @@ mean(knn_preds != test_20)
 table(knn_preds, test_20)
 ```
 
-### Trees
+Using the scaled data, we tried `knn` classification to see how well it performed on the test dataset. From a possible 20, we selected the best value of k that gave the lowest testing error rate and that was 1. The model did particularly well in classifying songs that did not make it into the top 20 charts, having a low testing error rate 6.8%. However, the accuracy for songs that did make it into the top 20 is still low, albeit higher than for logistic regression-a mere 35%. That said, the overall test accuracy was 83.7%, lower in comparison to the logistic regression.  
+
+
+## Trees
 
 ```{r}
 tree <- tree(top_20 ~ ., train)
@@ -185,7 +188,7 @@ mean(boost_preds != test$top_20)
 
 
 
-### SVM?
+## SVM?
 
 ```{r}
 set.seed(1)

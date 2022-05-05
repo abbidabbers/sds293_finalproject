@@ -63,7 +63,9 @@ Lastly, we created a correlation plot. There are some variables with higher than
 
 # Methodology
 
-To analyze the data, we first have to split it into test and training datasets. We opted to do a sample of the first 1000 rows instead of using a fraction because we wanted the sampled rows to correspond to the rows of the outcome variable, which would not be guaranteed if we used a fraction. Though not necessary, we chose to scale our data to make it generalizable.
+We first tried to utilize best subset selection, but we could not to run the code to completion.
+
+To analyze the data, we split it into test and training datasets. We opted to do a sample of the first 1000 rows instead of using a fraction because we wanted the sampled rows to correspond to the rows of the outcome variable, which would not be guaranteed if we used a fraction. Though not necessary, we chose to scale our data to make it generalizable.
 
 ```{r}
 set.seed(1)
@@ -207,9 +209,9 @@ table(predicted = svm_pred, true = test$top_20)
 39 / (39 + 124) # Accuracy rate for top 20 classification
 ```
 
-In a bid to improve the results from the logistic regression, we tried an SVM model with a linear kernel and the found the best cost value was 1. We first had to change the outcome variable to a factor. The model used 138 support vectors, and though the best model output claims the overall test error rate was 11.2%, the manual calculation using the actual predicted values gave a test error rate of 13.8%. Additionally, the accuracy for the songs that made it into the top 20 was even lower at 24% so it didn't do as well as we had hoped.
+To try and improve the results from logistic regression, we tried an SVM model with a linear kernel and found the best cost value was 1. We first had to change the outcome variable to a factor. Though the best model output claims the overall test error rate was 11.2%, the manual calculation using the actual predicted values gave a test error rate of 13.8%. Additionally, the accuracy for the songs that made it into the top 20 was even lower, at 24%, so it didn't improve on logistic regression as we had hoped.
 
-Though none of the models did extremely well, we choose the tree boosting model as our final model because it had the highest classification accuracy for top 20 songs, even though it had a higher overall error rate than logistic and SVM (see table below).
+Though none of the models did exceptionally well, we choose the tree boosting model as our final model because it had the highest classification accuracy for top 20 songs, even though it had a higher overall error rate than logistic and SVM (see table below).
 
 |                    | Logistic | KNN | Tree | SVM |
 |--------------------|----------|-----|------|-----|
@@ -220,7 +222,7 @@ Though none of the models did extremely well, we choose the tree boosting model 
 
 # Conclusion
 
-Our final model step was to apply our chosen tree boosting model to full dataset, first converting the top 20 variable back to a logical type.
+Our final step was to apply our chosen tree boosting model to the complete dataset, first converting the top 20 variable back to a logical type.
 
 ```{r}
 clean <- clean %>%
@@ -233,11 +235,15 @@ mean(final_preds != clean$top_20)
 178 / (141 + 178)
 ```
 
-The results were not significantly different from those obtained from the test data, though they were slightly better, with an overall error rate of 13.0% and a top 20 accuracy rate of 56%.
+The results were not significantly different from those obtained from the test data. However, they were slightly better, with an overall error rate of 13.0% and a top 20 accuracy rate of 56%.
+
+Our main takeaway from this project is that there is a likely a better model that could be created for this dataset, given the low accuracy rate for predicting top 20 songs. Future analysis could utilize better feature selection techniques and expand the types of models explored.
 
 
+# References
 
-
+- [EDA Inspriation](https://www.kaggle.com/code/ippudkiippude/spotify-dataset-eda-prediction-classification) 
+- [Correlation Plots](http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram#:~:text=Visualization%20methods,-Seven%20different%20visualization&text=Positive%20correlations%20are%20displayed%20in,proportional%20to%20the%20correlation%20coefficients)
 
 
 

@@ -1118,11 +1118,13 @@ correlated with other variables.</p>
 </div>
 <div id="methodology" class="section level1">
 <h1>Methodology</h1>
-<p>To analyze the data, we first have to split it into test and training
-datasets. We opted to do a sample of the first 1000 rows instead of
-using a fraction because we wanted the sampled rows to correspond to the
-rows of the outcome variable, which would not be guaranteed if we used a
-fraction. Though not necessary, we chose to scale our data to make it
+<p>We first tried to utilize best subset selection, but we could not to
+run the code to completion.</p>
+<p>To analyze the data, we split it into test and training datasets. We
+opted to do a sample of the first 1000 rows instead of using a fraction
+because we wanted the sampled rows to correspond to the rows of the
+outcome variable, which would not be guaranteed if we used a fraction.
+Though not necessary, we chose to scale our data to make it
 generalizable.</p>
 <pre class="r"><code>set.seed(1)
 
@@ -1334,15 +1336,15 @@ table(predicted = svm_pred, true = test$top_20)</code></pre>
 <pre><code>## [1] 0.138</code></pre>
 <pre class="r"><code>39 / (39 + 124) # Accuracy rate for top 20 classification</code></pre>
 <pre><code>## [1] 0.2392638</code></pre>
-<p>In a bid to improve the results from the logistic regression, we
-tried an SVM model with a linear kernel and the found the best cost
-value was 1. We first had to change the outcome variable to a factor.
-The model used 138 support vectors, and though the best model output
-claims the overall test error rate was 11.2%, the manual calculation
-using the actual predicted values gave a test error rate of 13.8%.
-Additionally, the accuracy for the songs that made it into the top 20
-was even lower at 24% so it didn’t do as well as we had hoped.</p>
-<p>Though none of the models did extremely well, we choose the tree
+<p>To try and improve the results from logistic regression, we tried an
+SVM model with a linear kernel and found the best cost value was 1. We
+first had to change the outcome variable to a factor. Though the best
+model output claims the overall test error rate was 11.2%, the manual
+calculation using the actual predicted values gave a test error rate of
+13.8%. Additionally, the accuracy for the songs that made it into the
+top 20 was even lower, at 24%, so it didn’t improve on logistic
+regression as we had hoped.</p>
+<p>Though none of the models did exceptionally well, we choose the tree
 boosting model as our final model because it had the highest
 classification accuracy for top 20 songs, even though it had a higher
 overall error rate than logistic and SVM (see table below).</p>
@@ -1378,8 +1380,8 @@ overall error rate than logistic and SVM (see table below).</p>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>Our final model step was to apply our chosen tree boosting model to
-full dataset, first converting the top 20 variable back to a logical
+<p>Our final step was to apply our chosen tree boosting model to the
+complete dataset, first converting the top 20 variable back to a logical
 type.</p>
 <pre class="r"><code>clean &lt;- clean %&gt;%
   mutate(top_20 = as.logical(top_20))
@@ -1396,8 +1398,22 @@ table(clean$top_20, final_preds)</code></pre>
 <pre class="r"><code>178 / (141 + 178)</code></pre>
 <pre><code>## [1] 0.5579937</code></pre>
 <p>The results were not significantly different from those obtained from
-the test data, though they were slightly better, with an overall error
+the test data. However, they were slightly better, with an overall error
 rate of 13.0% and a top 20 accuracy rate of 56%.</p>
+<p>Our main takeaway from this project is that there is a likely a
+better model that could be created for this dataset, given the low
+accuracy rate for predicting top 20 songs. Future analysis could utilize
+better feature selection techniques and expand the types of models
+explored.</p>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li><a href="https://www.kaggle.com/code/ippudkiippude/spotify-dataset-eda-prediction-classification">EDA
+Inspriation</a></li>
+<li><a href="http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram#:~:text=Visualization%20methods,-Seven%20different%20visualization&amp;text=Positive%20correlations%20are%20displayed%20in,proportional%20to%20the%20correlation%20coefficients">Correlation
+Plots</a></li>
+</ul>
 </div>
 
 
